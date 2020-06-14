@@ -2,6 +2,7 @@
 
 Toevoegen van het Observer Pattern om de kapitein wakker te maken en een bericht te plaatsen op het mesaggeboard.
 
+![image of Notify the Captain](notify-the-captain.png)
 
 ## Game play
 
