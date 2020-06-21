@@ -22,8 +22,27 @@ class GameObject extends HTMLElement {
 class Horn extends GameObject {
     constructor() {
         super();
+        this.observers = [];
+        this.addEventListener('click', this.NotifyEveryone);
         this._position = new Vector(window.innerWidth / 2 - this.clientWidth / 2, window.innerHeight / 2 - this.clientHeight / 2);
         this.draw();
+    }
+    register(observer) {
+        this.observers.push(observer);
+        console.log("I just registered: " + observer);
+    }
+    unregister(observer) {
+        let index = this.observers.indexOf(observer);
+        this.observers.splice(index, 1);
+        console.log("I just unregistered: " + observer);
+    }
+    notifyObservers() {
+        for (const observer of this.observers) {
+            observer.notify();
+        }
+    }
+    NotifyEveryone() {
+        this.notifyObservers();
     }
 }
 window.customElements.define("horn-component", Horn);
@@ -32,15 +51,19 @@ class Main {
         this.ships = [];
         let horn = new Horn();
         for (let i = 0; i < 10; i++) {
-            this.ships.push(new PirateShip());
+            this.ships.push(new PirateShip(horn));
         }
         let messageboard = new MessageBoard();
+        horn.register(messageboard);
     }
 }
 window.addEventListener("load", () => new Main());
 class MessageBoard extends GameObject {
     constructor() {
         super();
+    }
+    notify() {
+        this.addMessage("Horn activated!");
     }
     addMessage(text) {
         let message = document.createElement("message");
@@ -60,6 +83,9 @@ class Ship extends GameObject {
         this.createShip();
     }
     get color() { return this._color; }
+    set color(v) {
+        this.colors.push(v);
+    }
     createShip() {
         Ship.numberOfShips++;
         if (Ship.numberOfShips > 6)
@@ -71,10 +97,27 @@ class Ship extends GameObject {
 }
 Ship.numberOfShips = 0;
 class PirateShip extends Ship {
-    constructor() {
+    constructor(subject) {
         super();
+        this.ShouldNotify = false;
         this.captain = new Captain(this);
+        this.addEventListener('click', this.changeStatus);
         this.draw();
+        this.subject = subject;
+    }
+    notify() {
+        this.captain.style.backgroundImage = `url(images/emote_alert.png)`;
+    }
+    changeStatus() {
+        this.ShouldNotify = !this.ShouldNotify;
+        if (this.ShouldNotify) {
+            this.subject.register(this);
+            this.style.backgroundImage = `url(images/ship4.png)`;
+        }
+        if (this.ShouldNotify == false) {
+            this.style.backgroundImage = `url(images/ship-unregistered.png)`;
+            this.subject.unregister(this);
+        }
     }
 }
 window.customElements.define("ship-component", PirateShip);

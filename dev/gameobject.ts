@@ -1,9 +1,9 @@
-class GameObject extends HTMLElement{
-    
-    protected _position       : Vector = new Vector(0, 0)
-    protected rotation        : number = 0
+class GameObject extends HTMLElement {
+
+    protected _position: Vector = new Vector(0, 0)
+    protected rotation: number = 0
     // Properties
-    public get position()   : Vector    { return this._position }
+    public get position(): Vector { return this._position }
 
     constructor() {
         super()
@@ -15,4 +15,6 @@ class GameObject extends HTMLElement{
     protected draw() {
         this.style.transform = `translate(${this._position.x}px, ${this._position.y}px) rotate(${this.rotation}deg)`
     }
+
+
 }
